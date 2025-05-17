@@ -1,5 +1,13 @@
+main_parameters:
+  output_version: '01'
+  to_excel: true
+  to_sqlite: true
+
 market_data:
-  tickers: ['BNP.PA', 'KER.PA', 'INGA.AS']
+  tickers:
+    - 'BNP.PA'
+    - 'KER.PA'
+    - 'INGA.AS'
   start_date: '2020-01-01'
   end_date: '2024-01-01'
 
@@ -8,3 +16,46 @@ benchmark:
 
 database:
   path: 'database/db.sqlite'
+  market_table: 'market_data'
+  benchmark_table: 'benchmark_data'
+  metadata_table: 'metadata'
+  output_dir: 'output'
+
+metadata:
+  file_path: 'data/metadata.csv'
+  columns:
+    columns_date: []
+    columns_numeric: []
+    columns_string:
+      - Ticker_YFinance
+      - Sector_ICB
+      - Country
+    columns_to_drop:
+      - Company
+    columns_new_names:
+      Ticker_YFinance: ticker
+      Sector_ICB: sector
+      Country: country
+
+portfolio:
+  default_weights:
+    'BNP.PA': 0.4
+    'KER.PA': 0.3
+    'INGA.AS': 0.3
+  enforce_100_percent: true
+  allowed_range: [0.0, 1.0]  # pour sliders
+
+performance:
+  risk_free_rate: 0.0
+  trading_days_per_year: 252
+  metrics:
+    - cumulative_return
+    - annualized_volatility
+    - sharpe_ratio
+    - max_drawdown
+
+export:
+  export_excel_enabled: true
+  export_csv_enabled: true
+  file_excel_path: 'output/exported_portfolio.xlsx'
+  file_csv_path: 'output/exported_portfolio.csv'
