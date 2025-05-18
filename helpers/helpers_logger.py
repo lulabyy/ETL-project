@@ -26,8 +26,8 @@ def setupLogger(name="etl_logger", log_dir="log", log_filename="etl.log"):
         formatter = logging.Formatter(
             "%(asctime)s | %(name)s | %(levelname)s | %(module)s | %(funcName)s | %(lineno)d | %(message)s"
         )
-        
-        file_handler = logging.FileHandler(log_file, mode="w")
+
+        file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
         file_handler.setFormatter(formatter)
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(formatter)

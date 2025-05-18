@@ -21,3 +21,4 @@ def get_fund_data_from_api(fund_names: Sequence[str]) -> pd.DataFrame:
     }
 
     return pd.DataFrame(fake_results)
+ 
