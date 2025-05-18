@@ -1,7 +1,7 @@
-from model.model_config import BenchmarkConfig
+from model.model_config import PortfolioConfig
 
-class BenchmarkETL():
-    def __init__(self, config: BenchmarkConfig):
+class MarketETL():
+    def __init__(self, config: PortfolioConfig):
         self.config = config
 
     def extract(self):

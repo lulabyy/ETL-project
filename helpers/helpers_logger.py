@@ -1,7 +1,7 @@
 import logging
 import os
 
-def setupLogger(name="etl_logger", log_dir="log", log_filename="etl.log"):
+def initLogger(name="etl_logger", log_filename="etl.log", log_dir="log"):
     """
     Initialise le logger et écrit les logs dans le dossier spécifié (par défaut 'log').
 
