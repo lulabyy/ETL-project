@@ -7,16 +7,15 @@ from helpers import helpers_logger
 from helpers import helpers_export
 
 class MetadataETL():
-    def __init__(self, config: EtlConfig, root_path: str):
+    def __init__(self, config: EtlConfig):
         self.logger = helpers_logger.initLogger("etl_metadata_logger", "etl_metadata")
-        self.root_path = root_path
         self.config = config
         self.df_raw = None
         self.df_transformed = None
 
     def extract(self):
-        absolute_data_path = os.path.join(self.root_path, self.config.metadata.dir, self.config.metadata.file)
-        self.logger.info(f"Extracting data from: {os.path.relpath(absolute_data_path, start=self.root_path)}")
+        absolute_data_path = os.path.join(self.config.root_path, self.config.metadata.dir, self.config.metadata.file)
+        self.logger.info(f"Extracting data from: {os.path.relpath(absolute_data_path, start=self.config.root_path)}")
 
         try:
             self.df_raw = pd.read_csv(absolute_data_path)
@@ -76,7 +75,7 @@ class MetadataETL():
 
         try:
             if self.config.main_parameters.to_excel:
-                excel_path = os.path.join(self.root_path, self.config.etl_output.excel.dir,
+                excel_path = os.path.join(self.config.root_path, self.config.etl_output.excel.dir,
                                           self.config.etl_output.excel.file.format(self.config.main_parameters.output_version))
                 os.makedirs(os.path.dirname(excel_path), exist_ok=True)
 
@@ -85,7 +84,7 @@ class MetadataETL():
                 self.logger.info(f"sheets={helpers_export.get_excel_sheet_names(excel_path)}")
 
             if self.config.main_parameters.to_sqlite:
-                sqlite_path = os.path.join(self.root_path, self.config.database.dir, 
+                sqlite_path = os.path.join(self.config.root_path, self.config.database.dir, 
                                            self.config.database.file.format(self.config.main_parameters.output_version))
                 os.makedirs(os.path.dirname(sqlite_path), exist_ok=True)
 

@@ -21,7 +21,7 @@ def main():
     # tu pourras mettre ici l'appel aux ETL market/benchmark/metadata
     logger.debug(f"Tickers chargés : {config.portfolio.tickers}")
 
-    metadata_etl = etl_metadata.MetadataETL(config, config.root_path)
+    metadata_etl = etl_metadata.MetadataETL(config)
     metadata_etl.extract()
     metadata_etl.transform()
     metadata_etl.load()
