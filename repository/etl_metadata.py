@@ -14,6 +14,7 @@ class MetadataETL():
         self.df_transformed = None
 
     def extract(self):
+        # on récupere le path du csv des metadatas
         absolute_data_path = os.path.join(self.config.root_path, self.config.metadata.dir, self.config.metadata.file)
         self.logger.info(f"Extracting data from: {os.path.relpath(absolute_data_path, start=self.config.root_path)}")
 
@@ -71,7 +72,7 @@ class MetadataETL():
             raise ValueError("No data to load.")
 
         self.logger.info("Loading data")
-        export = {"metadata": self.df_transformed}
+        export = {self.config.etl_output.excel.metadata_sheet: self.df_transformed}
 
         try:
             if self.config.main_parameters.to_excel:

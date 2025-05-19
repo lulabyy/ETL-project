@@ -1,0 +1,34 @@
+2025-05-19 22:41:47,906 | etl_benchmark_logger | INFO | etl_benchmark | extract | 20 | Extracting benchmark tickers from: data\metadata.csv
+2025-05-19 22:41:47,908 | etl_benchmark_logger | INFO | etl_benchmark | extract | 35 | 101 tickers found for benchmark
+2025-05-19 22:41:47,908 | etl_benchmark_logger | INFO | etl_benchmark | extract | 38 | Extracting data from yfinance
+2025-05-19 22:42:00,659 | etl_benchmark_logger | INFO | etl_benchmark | extract | 52 | yfinance data shape: (10045, 505)
+2025-05-19 22:42:00,659 | etl_benchmark_logger | INFO | etl_benchmark | transform | 60 | Transforming data
+2025-05-19 22:42:00,768 | etl_benchmark_logger | ERROR | etl_benchmark | transform | 85 | Error while transforming: 'Ticker'
+Traceback (most recent call last):
+  File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7081, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas\\_libs\\hashtable_class_helper.pxi", line 7089, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Ticker'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "d:\Github\lulabyy\ETL-project\repository\etl_benchmark.py", line 77, in transform
+    df_pivot = df_long.pivot(index=["Date", "Ticker"], columns="Variable", values="Value").reset_index()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\frame.py", line 9339, in pivot
+    return pivot(self, index=index, columns=columns, values=values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\reshape\pivot.py", line 553, in pivot
+    index_list = [data[idx] for idx in com.convert_to_list_like(index)]
+                  ~~~~^^^^^
+  File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Ticker'
