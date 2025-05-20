@@ -7,7 +7,6 @@ from sqlalchemy import create_engine, MetaData, inspect
 
 IfExists = Literal["fail", "replace", "append"]
 
-
 def dataframes_to_excel(
     dataframes: Dict[str, pd.DataFrame], excel_full_path: str
 ) -> None:
@@ -18,8 +17,15 @@ def dataframes_to_excel(
     :return: None
     """
     os.makedirs(os.path.dirname(excel_full_path), exist_ok=True)
+    
+    if os.path.exists(excel_full_path):
+        mode = "a"
+        if_sheet_exists = "replace"
+    else:
+        mode = "w"
+        if_sheet_exists = None  
 
-    with pd.ExcelWriter(excel_full_path) as writer:
+    with pd.ExcelWriter(excel_full_path, engine="openpyxl", mode=mode, if_sheet_exists=if_sheet_exists) as writer:
         for sheet, df in dataframes.items():
             if isinstance(df.columns, pd.MultiIndex):
                 df.to_excel(writer, sheet_name=sheet, merge_cells=False)
