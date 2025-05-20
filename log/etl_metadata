@@ -1,9 +1,9 @@
-2025-05-19 22:41:47,416 | etl_metadata_logger | INFO | etl_metadata | extract | 19 | Extracting data from: data\metadata.csv
-2025-05-19 22:41:47,420 | etl_metadata_logger | INFO | etl_metadata | extract | 23 | Raw data shape: (101, 4)
-2025-05-19 22:41:47,420 | etl_metadata_logger | INFO | etl_metadata | transform | 33 | Transforming data
-2025-05-19 22:41:47,421 | etl_metadata_logger | INFO | etl_metadata | transform | 63 | Transformed data shape: (101, 3)
-2025-05-19 22:41:47,421 | etl_metadata_logger | INFO | etl_metadata | load | 74 | Loading data
-2025-05-19 22:41:47,422 | etl_metadata_logger | INFO | etl_metadata | load | 83 | Exporting data to Excel | path=d:\Github\lulabyy\ETL-project\output\output_excel_v01.xlsx
-2025-05-19 22:41:47,663 | etl_metadata_logger | INFO | etl_metadata | load | 85 | sheets=['metadata']
-2025-05-19 22:41:47,663 | etl_metadata_logger | INFO | etl_metadata | load | 92 | Exporting data to SQLite | path=d:\Github\lulabyy\ETL-project\database\output_db_v01.sqlite
-2025-05-19 22:41:47,906 | etl_metadata_logger | INFO | etl_metadata | load | 94 | tables=['benchmark', 'metadata']
+2025-05-20 13:16:37,551 | etl_metadata_logger | INFO | etl_metadata | extract | 19 | Extracting data from: data\metadata.csv
+2025-05-20 13:16:37,554 | etl_metadata_logger | INFO | etl_metadata | extract | 23 | Raw data shape: (101, 4)
+2025-05-20 13:16:37,554 | etl_metadata_logger | INFO | etl_metadata | transform | 33 | Transforming data
+2025-05-20 13:16:37,555 | etl_metadata_logger | INFO | etl_metadata | transform | 63 | Transformed data shape: (101, 3)
+2025-05-20 13:16:37,555 | etl_metadata_logger | INFO | etl_metadata | load | 74 | Loading data
+2025-05-20 13:16:37,556 | etl_metadata_logger | INFO | etl_metadata | load | 83 | Exporting data to Excel | path=d:\Github\lulabyy\ETL-project\output\output_excel_v01.xlsx
+2025-05-20 13:16:37,791 | etl_metadata_logger | INFO | etl_metadata | load | 85 | sheets=['metadata']
+2025-05-20 13:16:37,792 | etl_metadata_logger | INFO | etl_metadata | load | 92 | Exporting data to SQLite | path=d:\Github\lulabyy\ETL-project\database\output_db_v01.sqlite
+2025-05-20 13:16:38,580 | etl_metadata_logger | INFO | etl_metadata | load | 94 | tables=['benchmark', 'metadata']

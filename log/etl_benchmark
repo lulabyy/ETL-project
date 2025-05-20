@@ -1,9 +1,9 @@
-2025-05-19 22:41:47,906 | etl_benchmark_logger | INFO | etl_benchmark | extract | 20 | Extracting benchmark tickers from: data\metadata.csv
-2025-05-19 22:41:47,908 | etl_benchmark_logger | INFO | etl_benchmark | extract | 35 | 101 tickers found for benchmark
-2025-05-19 22:41:47,908 | etl_benchmark_logger | INFO | etl_benchmark | extract | 38 | Extracting data from yfinance
-2025-05-19 22:42:00,659 | etl_benchmark_logger | INFO | etl_benchmark | extract | 52 | yfinance data shape: (10045, 505)
-2025-05-19 22:42:00,659 | etl_benchmark_logger | INFO | etl_benchmark | transform | 60 | Transforming data
-2025-05-19 22:42:00,768 | etl_benchmark_logger | ERROR | etl_benchmark | transform | 85 | Error while transforming: 'Ticker'
+2025-05-20 13:16:38,581 | etl_benchmark_logger | INFO | etl_benchmark | extract | 20 | Extracting benchmark tickers from: data\metadata.csv
+2025-05-20 13:16:38,583 | etl_benchmark_logger | INFO | etl_benchmark | extract | 35 | 101 tickers found for benchmark
+2025-05-20 13:16:38,583 | etl_benchmark_logger | INFO | etl_benchmark | extract | 38 | Extracting data from yfinance
+2025-05-20 13:16:44,921 | etl_benchmark_logger | INFO | etl_benchmark | extract | 52 | yfinance data shape: (10046, 505)
+2025-05-20 13:16:44,921 | etl_benchmark_logger | INFO | etl_benchmark | transform | 60 | Transforming data
+2025-05-20 13:16:45,009 | etl_benchmark_logger | ERROR | etl_benchmark | transform | 85 | Error while transforming: 'Ticker'
 Traceback (most recent call last):
   File "C:\Users\timla\AppData\Local\Programs\Python\Python312\Lib\site-packages\pandas\core\indexes\base.py", line 3805, in get_loc
     return self._engine.get_loc(casted_key)
