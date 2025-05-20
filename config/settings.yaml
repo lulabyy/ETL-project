@@ -8,28 +8,39 @@ main_parameters:
 database:
   dir: 'database'
   file: 'output_db_v{}.sqlite'
-  portfolio_table: 'portfolio_data'
-  benchmark_table: 'benchmark_data'
+  benchmark_table: 'benchmark'
   metadata_table: 'metadata'
 
 etl_output:
   excel:
     dir: 'output'
     file: 'output_excel_v{}.xlsx'
-    portfolio_sheet: 'portfolio'
     benchmark_sheet: 'benchmark'
     metadata_sheet: 'metadata'
 
-portfolio:
-  tickers:
-    - 'BNP.PA'
-    - 'KER.PA'
-    - 'INGA.AS'
-  start_date: '2020-01-01'
-  end_date: '2024-01-01'
-
 benchmark:
-  ticker: '^N100'
+  name: 'Euronext100'
+  tickers_info:
+    dir: 'data'
+    file: 'metadata.csv'
+    column: 'Ticker_YFinance'
+  columns:
+    columns_date: []
+    columns_numeric:
+    columns_string:
+    columns_to_drop:
+    columns_new_names:
+      Date: date
+      Ticker: ticker
+      Open: open
+      High: high
+      Low: low
+      Close: close
+      Volume: volume
+
+  logger:
+    logname: "etl_benchmark_logger"
+    filename: "etl_benchmark.log"
 
 metadata:
   dir: 'data'
@@ -47,6 +58,9 @@ metadata:
       Ticker_YFinance: ticker
       Sector_ICB: sector
       Country: country
+  logger:
+    logname: "etl_metadata_logger"
+    filename: "etl_metadata.log"
 
 streamlit:
   export:
@@ -56,20 +70,23 @@ streamlit:
     sqlite:
       dir: 'downloads'
       file: 'dl_sqlite_v{}.db'
-
-  # portfolio:
-  #   default_weights:
-  #     'BNP.PA': 0.4
-  #     'KER.PA': 0.3
-  #     'INGA.AS': 0.3
-  #   enforce_100_percent: true
-  #   allowed_range: [0.0, 1.0]  # pour sliders
-
-  # performance:
-  #   risk_free_rate: 0.0
-  #   trading_days_per_year: 252
-  #   metrics:
-  #     - cumulative_return
-  #     - annualized_volatility
-  #     - sharpe_ratio
-  #     - max_drawdown
+  portfolio:
+    max_nb_tickers: 3
+    default_tickers:
+      - 'BNP.PA'
+      - 'KER.PA'
+      - 'INGA.AS'
+    default_weights:
+      'BNP.PA': 0.33
+      'KER.PA': 0.33
+      'INGA.AS': 0.33
+    allowed_range: [0.0, 1.0]
+    enforce_100_percent: true
+  performance:
+    risk_free_rate: 0.0
+    trading_days_per_year: 252
+    metrics:
+      - cumulative_return
+      - annualized_volatility
+      - sharpe_ratio
+      - max_drawdown

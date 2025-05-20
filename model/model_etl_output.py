@@ -5,7 +5,6 @@ from typing import List, Dict, Sequence
 class ExcelOutputConfig:
     dir: str
     file: str
-    portfolio_sheet: str
     benchmark_sheet: str
     metadata_sheet: str
 

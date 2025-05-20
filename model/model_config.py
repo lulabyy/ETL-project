@@ -3,7 +3,6 @@ from typing import List, Dict, Sequence
 
 from model.model_benchmark import BenchmarkConfig
 from model.model_metadata import MetadataConfig
-from model.model_portfolio import PortfolioConfig
 from model.model_etl_output import EtlOutputConfig
 from model.model_streamlit import StreamlitConfig
 
@@ -17,7 +16,6 @@ class MainParameters:
 class DatabaseConfig:
     dir: str
     file: str
-    portfolio_table: str
     benchmark_table: str
     metadata_table: str
 
@@ -27,7 +25,6 @@ class EtlConfig:
     main_parameters: MainParameters
     database: DatabaseConfig
     etl_output: EtlOutputConfig
-    portfolio: PortfolioConfig
     benchmark: BenchmarkConfig
     metadata: MetadataConfig
     streamlit: StreamlitConfig

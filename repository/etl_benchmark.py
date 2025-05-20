@@ -9,14 +9,14 @@ from helpers import helpers_export
 
 class BenchmarkETL():
     def __init__(self, config: EtlConfig):
-        self.logger = helpers_logger.initLogger("etl_benchmark_logger", "etl_benchmark")
+        self.logger = helpers_logger.initLogger(config.benchmark.logger.logname, config.benchmark.logger.filename)
         self.config = config
         self.df_raw = None
         self.df_transformed = None
 
     def extract(self):
         # 1. on récupere le path du csv des metadata pour récuperer les tickers du benchmark
-        absolute_metadata_path = os.path.join(self.config.root_path, self.config.metadata.dir, self.config.metadata.file)
+        absolute_metadata_path = os.path.join(self.config.root_path, self.config.benchmark.tickers_info.dir, self.config.benchmark.tickers_info.file)
         self.logger.info(f"Extracting benchmark tickers from: {os.path.relpath(absolute_metadata_path, start=self.config.root_path)}")
 
         try:
@@ -26,7 +26,7 @@ class BenchmarkETL():
             raise
 
         # 2. récupérer la colonne des tickers
-        ticker_col = "Ticker_YFinance"
+        ticker_col = self.config.benchmark.tickers_info.column
         if ticker_col not in df_metadata.columns:
             self.logger.error(f"Ticker column '{ticker_col}' not found in metadata")
             raise ValueError("Ticker column missing")
@@ -35,7 +35,7 @@ class BenchmarkETL():
         self.logger.info(f"{len(tickers)} tickers found for benchmark")
 
         # 3. on fait appel à l'api sur yfinance avec les tickers
-        self.logger.info("Extracting data from yfinance")
+        self.logger.info(f"Extracting data from yfinance ({self.config.benchmark.name} benchmark)")
         try:
             df_yf = yf.download(
                 tickers=" ".join(tickers),
@@ -61,26 +61,25 @@ class BenchmarkETL():
         df = self.df_raw.copy(deep=True)
 
         try:
-            # 1. Passe en format long (Date, Ticker, Variable)
-            df_long = df.stack(level=1, future_stack=True).reset_index()  # level=1 = tickers
-            df_long.columns.name = None
+            df = self.df_raw.copy()
 
-            # 2. level_1 = variable type (Open, Close...), level_0 = date, level_2 = ticker
-            df_long = df_long.rename(columns={
-                "level_0": "Date",      # ancienne ligne index
-                "level_1": "Variable",  # Open, Close, etc.
-                "level_2": "Ticker",    # le ticker
-                0: "Value"              # la vraie valeur
-            })
+            # 1. Stack sur le niveau 0 (Open, High, ...) → lignes = [Date, Ticker, Variable]
+            df_long = df.stack(level=0, future_stack=True).reset_index()
+            df_long.columns.name = None  
 
-            # 3. Pivot pour reconstruire : une ligne par (Date, Ticker)
-            df_pivot = df_long.pivot(index=["Date", "Ticker"], columns="Variable", values="Value").reset_index()
+            # 2. Renommer proprement les colonnes
+            df_long.rename(columns={
+                "level_0": "Date",
+                "level_1": "Ticker"
+            }, inplace=True)
 
-            # 4. Réordonner
-            df_pivot = df_pivot[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
+            df_ordered = df_long[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
+            df_ordered.dropna(how="all", subset=["Open", "High", "Low", "Close", "Volume"], inplace=True)
 
-            self.df_transformed = df_pivot
-            self.logger.info(f"Transformed data shape: {self.df_transformed.shape}")
+            # 4. Stockage
+            self.df_transformed = df_ordered
+            self.logger.info(f"Transformed data shape: {df_ordered.shape}")
+
         except Exception as e:
             self.logger.exception(f"Error while transforming: {e}")
             raise  

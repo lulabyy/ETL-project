@@ -17,5 +17,21 @@ class StreamlitExportConfig:
     sqlite: StreamlitExportSQLite
 
 @dataclass
+class StreamlitPortfolioConfig:
+    max_nb_tickers: int
+    default_tickers: Sequence[str]
+    default_weights: Dict[str, float]
+    allowed_range: Sequence[float]
+    enforce_100_percent: bool
+
+@dataclass
+class StreamlitPerformanceConfig:
+    risk_free_rate: float
+    trading_days_per_year: int
+    metrics: Sequence[str]
+
+@dataclass
 class StreamlitConfig:
     export: StreamlitExportConfig
+    portfolio: StreamlitPortfolioConfig
+    performance: StreamlitPerformanceConfig

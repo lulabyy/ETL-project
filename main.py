@@ -22,8 +22,6 @@ config = helpers_config.get_config(absolute_root_path, relative_config_path)
 
 def main():
     logger.info("Démarrage du pipeline ETL")
-    # tu pourras mettre ici l'appel aux ETL market/benchmark/metadata
-    logger.debug(f"Tickers chargés : {config.portfolio.tickers}")
 
     metadata_etl = etl_metadata.MetadataETL(config)
     metadata_etl.extract()

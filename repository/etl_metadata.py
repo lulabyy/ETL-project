@@ -8,7 +8,7 @@ from helpers import helpers_export
 
 class MetadataETL():
     def __init__(self, config: EtlConfig):
-        self.logger = helpers_logger.initLogger("etl_metadata_logger", "etl_metadata")
+        self.logger = helpers_logger.initLogger(config.metadata.logger.logname, config.metadata.logger.filename)
         self.config = config
         self.df_raw = None
         self.df_transformed = None
