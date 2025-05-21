@@ -11,6 +11,7 @@ class MainParameters:
     output_version: str
     to_excel: bool
     to_sqlite: bool
+    log_dir: str
 
 @dataclass
 class DatabaseConfig:
@@ -22,6 +23,7 @@ class DatabaseConfig:
 @dataclass
 class EtlConfig:
     root_path: str
+    log_path: str
     main_parameters: MainParameters
     database: DatabaseConfig
     etl_output: EtlOutputConfig

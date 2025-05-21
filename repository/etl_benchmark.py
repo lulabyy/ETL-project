@@ -9,7 +9,7 @@ from helpers import helpers_export
 
 class BenchmarkETL():
     def __init__(self, config: EtlConfig):
-        self.logger = helpers_logger.initLogger(config.benchmark.logger.logname, config.benchmark.logger.filename)
+        self.logger = helpers_logger.initLogger(config.benchmark.logger.logname, config.log_path, config.benchmark.logger.filename)
         self.config = config
         self.df_raw = None
         self.df_transformed = None

@@ -35,7 +35,8 @@ def get_config(root_path: str, relative_config_path) -> EtlConfig:
     path = os.path.join(root_path, relative_config_path)
     config = get_serialized_data(path)
     return EtlConfig(
-        root_path=root_path,
+        root_path = root_path,
+        log_path =  os.path.join(root_path, config["main_parameters"]["log_dir"]),
         
         main_parameters = MainParameters(**config["main_parameters"]),
 

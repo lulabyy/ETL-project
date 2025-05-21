@@ -1,26 +1,23 @@
 import logging
 import os
 
-def initLogger(name="etl_logger", log_filename="etl.log", log_dir="log"):
+def initLogger(log_name: str, log_dir_path: str, log_filename: str):
     """
     Initialise le logger et écrit les logs dans le dossier spécifié (par défaut 'log').
 
     Parameters:
     ----------
     :param name: logger name
-    :param log_dir: dir name
+    :param log_dir_path: dir path
+    :param log_filename: filename path
     :return: the logger
     """
-    current_file = os.path.abspath(__file__)
-    project_root = os.path.dirname(os.path.dirname(current_file))
+    os.makedirs(log_dir_path, exist_ok=True)
 
-    full_log_dir = os.path.join(project_root, log_dir)
-    os.makedirs(full_log_dir, exist_ok=True)
-
-    log_file = os.path.join(full_log_dir, log_filename)
+    log_file = os.path.join(log_dir_path, log_filename)
 
     # Création du logger si il existe pas déjà
-    logger = logging.getLogger(name)
+    logger = logging.getLogger(log_name)
     if not logger.handlers:
         logger.setLevel(logging.DEBUG)
         formatter = logging.Formatter(

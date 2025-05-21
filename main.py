@@ -9,16 +9,16 @@ from helpers import (
     helpers_logger, helpers_config
 )
 
-# Setup du logger et récupération de l'objet logger
-logger = helpers_logger.initLogger()
-logging.getLogger("sqlalchemy.engine.Engine").disabled = True
-
 # Récupérer le path absolute du root
 absolute_root_path = os.path.dirname(os.path.abspath(__file__))
 
 # Chargement de la config
 relative_config_path = "config/settings.yaml"
 config = helpers_config.get_config(absolute_root_path, relative_config_path)
+
+# Setup du logger et récupération de l'objet logger
+logger = helpers_logger.initLogger("main_logger", config.log_path, "main.log")
+logging.getLogger("sqlalchemy.engine.Engine").disabled = True
 
 def main():
     logger.info("Démarrage du pipeline ETL")

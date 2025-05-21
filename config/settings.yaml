@@ -1,9 +1,11 @@
 root_path: null
+log_path: null
 
 main_parameters:
   output_version: '01'
   to_excel: true
   to_sqlite: true
+  log_dir: log
 
 database:
   dir: 'database'
