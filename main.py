@@ -23,15 +23,19 @@ logging.getLogger("sqlalchemy.engine.Engine").disabled = True
 def main():
     logger.info("Démarrage du pipeline ETL")
 
+    logger.info(f"Démarrage du ETL Metadata (voir {config.metadata.logger.logname})")
     metadata_etl = etl_metadata.MetadataETL(config)
     metadata_etl.extract()
     metadata_etl.transform()
     metadata_etl.load()
     
+    logger.info(f"Démarrage du ETL Benchmark (voir {config.benchmark.logger.logname})")
     benchmark_etl = etl_benchmark.BenchmarkETL(config)
     benchmark_etl.extract()
     benchmark_etl.transform()
     benchmark_etl.load()
+
+    logger.info("Pipeline ETL terminé")
 
 if __name__ == "__main__":
     main()

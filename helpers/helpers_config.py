@@ -41,7 +41,7 @@ def get_config(root_path: str, relative_config_path) -> EtlConfig:
         main_parameters = MainParameters(**config["main_parameters"]),
 
         benchmark = BenchmarkConfig(
-            ticker = config["benchmark"]["ticker"],
+            name = config["benchmark"]["name"],
             tickers_info = BenchmarkTickersInfo(**config["benchmark"]["tickers_info"]),
             columns = BenchmarkColumns(**config["benchmark"]["columns"]),
             logger = BenchmarkLogger(**config["benchmark"]["logger"])

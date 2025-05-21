@@ -27,10 +27,17 @@ benchmark:
     file: 'metadata.csv'
     column: 'Ticker_YFinance'
   columns:
-    columns_date: []
+    columns_date:
+      - Date
     columns_numeric:
+      - Open
+      - High
+      - Low
+      - Close
+      - Volume
     columns_string:
-    columns_to_drop:
+      - Ticker
+    columns_to_drop: []
     columns_new_names:
       Date: date
       Ticker: ticker
@@ -60,6 +67,7 @@ metadata:
       Ticker_YFinance: ticker
       Sector_ICB: sector
       Country: country
+
   logger:
     logname: "etl_metadata_logger"
     filename: "etl_metadata.log"

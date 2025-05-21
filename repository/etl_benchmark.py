@@ -63,11 +63,13 @@ class BenchmarkETL():
         try:
             df = self.df_raw.copy()
 
-            # 1. Stack sur le niveau 0 (Open, High, ...) → lignes = [Date, Ticker, Variable]
-            df_long = df.stack(level=0, future_stack=True).reset_index()
-            df_long.columns.name = None  
+            # 1. remove multi-index
 
-            # 2. Renommer proprement les colonnes
+            # 1.1 Stack sur le niveau 0 (Open, High, ...) → lignes = [Date, Ticker, Variable]
+            df_long = df.stack(level=0, future_stack=True).reset_index()
+            df_long.columns.name = None
+
+            # 1.2 Rename columns
             df_long.rename(columns={
                 "level_0": "Date",
                 "level_1": "Ticker"
@@ -76,7 +78,32 @@ class BenchmarkETL():
             df_ordered = df_long[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
             df_ordered.dropna(how="all", subset=["Open", "High", "Low", "Close", "Volume"], inplace=True)
 
-            # 4. Stockage
+            # transform les columns
+
+            # 1. Drop useless columns.
+            for col in self.config.benchmark.columns.columns_to_drop:
+                if col in df.columns:
+                     df.drop(col, axis=1, inplace=True)
+
+            # 2. Change string format to datetime.
+            for col in self.config.benchmark.columns.columns_date:
+                if col in df.columns:
+                    df[col] = pd.to_datetime(df[col])
+
+            # 3. Change string format to numeric
+            for col in self.config.benchmark.columns.columns_numeric:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col])
+
+            # 4. Force string type
+            for col in self.config.benchmark.columns.columns_string:
+                new_col = self.config.benchmark.columns.columns_new_names.get(col, col)
+                if new_col in df.columns:
+                    df[new_col] = df[new_col].astype(str)
+
+            # 5. Rename columns
+            df.rename(columns=self.config.benchmark.columns.columns_new_names, inplace=True)
+
             self.df_transformed = df_ordered
             self.logger.info(f"Transformed data shape: {df_ordered.shape}")
 
