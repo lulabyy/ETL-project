@@ -1,5 +1,6 @@
 root_path: null
 log_path: null
+db_path: null
 
 main_parameters:
   output_version: '01'

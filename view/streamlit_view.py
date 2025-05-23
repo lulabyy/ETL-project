@@ -23,7 +23,7 @@ class GetData:
         engine.dispose()
 
         self.df_merged = self.df_price.merge(self.df_meta, on="ticker", how="left")
-
-class PortfolioDashboard:
-    def __init__(self, data: GetData):
+# 
+# class PortfolioDashboard:
+#     def __init__(self, data: GetData):
 
