@@ -100,3 +100,6 @@ streamlit:
       - annualized_volatility
       - sharpe_ratio
       - max_drawdown
+  logger:
+    logname: "etl_view_logger"
+    filename: "etl_view.log"
