@@ -75,12 +75,13 @@ class BenchmarkETL():
                 "level_1": "Ticker"
             }, inplace=True)
 
-            df_ordered = df_long[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
-            df_ordered.dropna(how="all", subset=["Open", "High", "Low", "Close", "Volume"], inplace=True)
+            #1.3 Drop useless rows.
+            df = df_long[["Date", "Ticker", "Open", "High", "Low", "Close", "Volume"]]
+            df.dropna(how="all", subset=["Open", "High", "Low", "Close", "Volume"], inplace=True)
 
             # transform les columns
 
-            # 1. Drop useless columns.
+            # 1.4 Drop useless columns.
             for col in self.config.benchmark.columns.columns_to_drop:
                 if col in df.columns:
                      df.drop(col, axis=1, inplace=True)
@@ -104,8 +105,8 @@ class BenchmarkETL():
             # 5. Rename columns
             df.rename(columns=self.config.benchmark.columns.columns_new_names, inplace=True)
 
-            self.df_transformed = df_ordered
-            self.logger.info(f"Transformed data shape: {df_ordered.shape}")
+            self.df_transformed = df
+            self.logger.info(f"Transformed data shape: {df.shape}")
 
         except Exception as e:
             self.logger.exception(f"Error while transforming: {e}")

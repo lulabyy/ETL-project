@@ -24,6 +24,7 @@ class DatabaseConfig:
 class EtlConfig:
     root_path: str
     log_path: str
+    db_path: str
     main_parameters: MainParameters
     database: DatabaseConfig
     etl_output: EtlOutputConfig

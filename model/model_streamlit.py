@@ -31,7 +31,16 @@ class StreamlitPerformanceConfig:
     metrics: Sequence[str]
 
 @dataclass
+class StreamlitLogger:
+    logname: str
+    filename: str
+
+@dataclass
 class StreamlitConfig:
     export: StreamlitExportConfig
     portfolio: StreamlitPortfolioConfig
     performance: StreamlitPerformanceConfig
+    logger: StreamlitLogger
+
+
+
