@@ -10,14 +10,12 @@ config = helpers_config.get_config()
 logger = helpers_logger.initLogger("main_streamlit_logger", config.log_path, "main_streamlit.log")
 logging.getLogger("sqlalchemy.engine.Engine").disabled = True
 
-def main():
+def main_streamlit():
     logger.info("Démarrage de streamlit")
 
     data = Data(config)
     dashboard = PortfolioDashboard(config, data)
     dashboard.display()
 
-    logger.info("Fermeture de streamlit")
-
 if __name__ == "__main__":
-    main()
+    main_streamlit()
