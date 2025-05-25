@@ -23,7 +23,24 @@ class GetData:
         engine.dispose()
 
         self.df_merged = self.df_price.merge(self.df_meta, on="ticker", how="left")
-# 
-# class PortfolioDashboard:
-#     def __init__(self, data: GetData):
+
+class PortfolioDashboard:
+    def __init__(self, data: GetData):
+        self.data = data
+        self.config = data.config
+        self.df = data.df_merged
+
+    def display(self):
+        st.title("Dashboard portefeuille")
+
+        tickers = st.multiselect(
+            "Choisissez jusqu'à 3 actions :",
+            options=self.df["ticker"].unique(),
+            default=self.config.portfolio.default_tickers,
+            max_selections=self.config.portfolio.max_nb_tickers
+                )
+
+        st.write(f"Tickers sélectionnés : {tickers}")
+
+
 
