@@ -14,7 +14,7 @@ def main_streamlit():
     logger.info("Démarrage de streamlit")
 
     data = Data(config)
-    dashboard = PortfolioDashboard(config, data)
+    dashboard = PortfolioDashboard(data.df_merged, config)
     dashboard.display()
 
 if __name__ == "__main__":

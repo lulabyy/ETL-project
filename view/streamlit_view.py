@@ -34,42 +34,60 @@ class Data:
         self.df_merged = self.df_price.merge(self.df_meta, on="ticker", how="left")
 
 class PortfolioDashboard:
-    def __init__(self, config: EtlConfig, data: Data):
+    def __init__(self, df, config: EtlConfig):
+        self.df = df
         self.config = config
-        self.data = data
-        self.df = data.df_merged
-        self.all_tickers = self.df['ticker'].unique()
+        self.min_date = self.df['date'].min()
+        self.max_date = self.df['date'].max()
+
+    def get_tickers_in_period(self, start_date, end_date):
+        df_period = self.df[
+            (self.df['date'] >= pd.Timestamp(start_date)) &
+            (self.df['date'] <= pd.Timestamp(end_date))
+        ]
+        return df_period['ticker'].unique()
 
     def display(self):
         st.title("Dashboard portefeuille")
 
-        min_date = self.df['date'].min()
-        max_date = self.df['date'].max()
-
         start_date, end_date = st.date_input(
             "Choisissez la période d'analyse",
-            value=(min_date, max_date),
-            min_value=min_date,
-            max_value=max_date
+            value=(self.min_date, self.max_date),
+            min_value=self.min_date,
+            max_value=self.max_date
         )
 
-        # Filtrer le df selon la période
-        df_period = self.df[
-            (self.df['date'] >= pd.Timestamp(start_date)) &
-            (self.df['date'] <= pd.Timestamp(end_date))
-            ]
+        # 2. Récupère les tickers valides pour cette période
+        tickers_in_period = self.get_tickers_in_period(start_date, end_date)
 
-        # Proposer les tickers dispo sur cette période
-        @st.cache_data
-        def get_all_tickers(df):
-            return df['ticker'].unique()
+        # 3. Empêche toute sélection impossible
+        if len(tickers_in_period) == 0:
+            st.warning("Aucune action n'a de données sur la période sélectionnée. Merci de choisir une autre période.")
+            return
 
-        all_tickers = get_all_tickers(self.df)
+        # 5. Multiselect tickers (limité à ceux valides)
         tickers = st.multiselect(
-            "Choisissez jusqu'à 3 actions",
-            options=all_tickers,
+            "Choisissez vos actions",
+            options=tickers_in_period,
             default=self.config.streamlit.portfolio.default_tickers,
-            max_selections=self.config.streamlit.portfolio.max_nb_tickers
+            max_selections=3,
+            key="tickers_multiselect"
         )
+        st.session_state["selected_tickers"] = tickers
 
-        st.write(f"Tickers sélectionnés : {tickers}")
+        # 6. Contrôle UX final
+        if not tickers:
+            st.info("Sélectionnez au moins une action pour activer l’analyse.")
+            return  # Pas de bouton tant que rien n'est sélectionné
+
+        # 7. Bouton d'analyse
+        if st.button("Lancer l'analyse"):
+            df_result = self.df[
+                (self.df['date'] >= pd.Timestamp(start_date)) &
+                (self.df['date'] <= pd.Timestamp(end_date)) &
+                (self.df['ticker'].isin(tickers))
+            ]
+            if df_result.empty:
+                st.warning("Aucune donnée sur cette période et ces actions. Veuillez changer la sélection.")
+            else:
+                st.success("Analyse en cours !")
