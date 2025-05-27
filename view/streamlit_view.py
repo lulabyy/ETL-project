@@ -18,6 +18,7 @@ class Data:
         self.df_meta = None
         self.df_merged = None
 
+        self.logger.info("Initializing Data class.")
         self.load_df_from_db()
 
     def load_df_from_db(self):
@@ -26,15 +27,34 @@ class Data:
             self.config.database.dir,
             self.config.database.file.format(self.config.main_parameters.output_version)
         )
+        self.logger.info(f"Database path resolved: {db_path}")
 
-        engine = create_engine(f"sqlite:///{db_path}")
-        self.df_price = pd.read_sql_table(self.config.database.benchmark_table, con=engine)
-        self.df_meta = pd.read_sql_table(self.config.database.metadata_table, con=engine)
-        engine.dispose()
+        try:
+            engine = create_engine(f"sqlite:///{db_path}")
+            self.logger.info("Successfully connected to the SQLite database.")
 
-        self.df_merged = self.df_price.merge(self.df_meta, on="ticker", how="left")
+            self.df_price = pd.read_sql_table(self.config.database.benchmark_table, con=engine)
+            self.logger.info(
+                f"Loaded price table '{self.config.database.benchmark_table}' with shape {self.df_price.shape}."
+            )
 
-class PortfolioDashboard:
+            self.df_meta = pd.read_sql_table(self.config.database.metadata_table, con=engine)
+            self.logger.info(
+                f"Loaded metadata table '{self.config.database.metadata_table}' with shape {self.df_meta.shape}."
+            )
+
+            engine.dispose()
+            self.logger.info("Closed connection to the SQLite database.")
+
+            self.df_merged = self.df_price.merge(self.df_meta, on="ticker", how="left")
+            self.logger.info(
+                f"Merged DataFrames on 'ticker' column. Final merged DataFrame shape: {self.df_merged.shape}."
+            )
+        except Exception as e:
+            self.logger.error(f"Error while loading data from database: {e}")
+            raise
+
+class PortfolioDashboard: # faire les logs
     def __init__(self, df, config: EtlConfig):
         self.config = config
         self.logger = helpers_logger.initLogger(self.config.streamlit.logger.logname, self.config.log_path,
@@ -98,7 +118,7 @@ class PortfolioDashboard:
 
         # 5. Contrôle UX final
         if not tickers:
-            st.info("Sélectionnez au moins une action pour activer l’analyse.")
+            st.info("Sélectionnez au moins une action pour activer l'analyse.")
             return  # Pas de bouton tant que rien n'est sélectionné
 
         if st.button("Lancer l'analyse"):
