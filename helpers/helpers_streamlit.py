@@ -27,7 +27,7 @@ def compute_annualized_volatility(returns: pd.Series, trading_days_per_year) -> 
     volatility_annualized = sigma * np.sqrt(trading_days_per_year)
     return volatility_annualized
 
-def compute_sharpe(returns: pd.Series, risk_free_rate: float = 0.0, trading_days_per_year) -> float:
+def compute_sharpe(returns: pd.Series, risk_free_rate: float, trading_days_per_year) -> float:
     """
     Calcule le ratio de Sharpe annualisé.
     Args:
@@ -43,7 +43,6 @@ def compute_sharpe(returns: pd.Series, risk_free_rate: float = 0.0, trading_days
         raise ValueError("La volatilité est nulle, le ratio de Sharpe ne peut pas être calculé.")
     return (mean_return - risk_free_rate) / vol
 
-import pandas as pd
 
 def compute_max_drawdown(close: pd.Series) -> float:
     """
@@ -56,3 +55,18 @@ def compute_max_drawdown(close: pd.Series) -> float:
     peak = close.cummax()
     drawdown = (close - peak) / peak
     return drawdown.min()
+
+def compute_indicators(prices, config):
+    returns = compute_daily_returns(prices)
+    perf = compute_cumulative_return(prices)
+    vol = compute_annualized_volatility(returns, config.streamlit.performance.trading_days_per_year)
+    sharpe = compute_sharpe(returns, config.streamlit.performance.risk_free_rate, config.streamlit.performance.trading_days_per_year)
+    max_dd = compute_max_drawdown(prices)
+    return {
+        "Performance cumulée": perf,
+        "Volatilité annualisée": vol,
+        "Sharpe": sharpe,
+        "Max Drawdown": max_dd
+    }
+
+
