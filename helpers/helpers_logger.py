@@ -3,7 +3,7 @@ import os
 
 def initLogger(log_name: str, log_dir_path: str, log_filename: str):
     """
-    Initialise le logger et écrit les logs dans le dossier spécifié (par défaut 'log').
+   Initialize the logger and write the logs to the specified folder (default is ‘log’)
 
     Parameters:
     ----------

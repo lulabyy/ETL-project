@@ -97,17 +97,17 @@ class PortfolioDashboard: # faire les logs
             st.warning("The end date must be later than the start date.")
             return
 
-        # 2. Récupère les tickers valides pour cette période
+        # 2. Retrieve valid tickers for this period
         tickers_in_period = self.get_tickers_in_period(start_date, end_date)
         default_tickers = [t for t in self.config.streamlit.portfolio.default_tickers if t in tickers_in_period]
 
-        # 3. Adapter dynamiquement les tickers par défaut selon la période
+        # 3. Dynamically adjust default tickers based on the selected period
         if len(tickers_in_period) == 0:
             st.warning(
                 "No stocks are traded during this period. Note: Markets are closed on weekends and public holidays.")
             return
 
-        # 4. Multiselect tickers (limité à ceux valides)
+        # 4. Multiselect tickers (limited to valid ones)
         tickers = st.multiselect(
             "Select your stocks",
             options=tickers_in_period,
@@ -117,7 +117,7 @@ class PortfolioDashboard: # faire les logs
         )
         st.session_state["selected_tickers"] = tickers
 
-        # 5. Contrôle UX final
+        # 5. Final UX check
         if not tickers:
             st.info("Select at least one stock to enable the analysis.")
             return  # Pas de bouton tant que rien n'est sélectionné
@@ -133,16 +133,16 @@ class PortfolioDashboard: # faire les logs
                 return
             st.success("Analysis in progress !")
 
-            # 1. Pivot portefeuille (tickers sélectionnés)
+            # 1. Pivot portfolio (selected tickers)
             df_pivot = df_result.pivot(index='date', columns='ticker', values='close').sort_index()
 
-            # 2. garde uniquement les dates où tous les tickers ont un prix (évite biais jours fériés)**
+            # 2. Keep only the dates where all tickers have a price (to avoid holiday bias)
             df_pivot = df_pivot.dropna(how='any', axis=0)
             if df_pivot.empty:
                 st.warning("No common trading date for all selected stocks in the chosen period.")
                 return
 
-            # 3. Benchmark : moyenne équipondérée de TOUS les tickers (benchmark officiel) ????
+            # 3. Benchmark: equally weighted average of ALL tickers (official benchmark)
             benchmark_tickers = self.df['ticker'].unique()
             df_benchmark = self.df[
                 (self.df['date'] >= pd.Timestamp(start_date)) &
@@ -151,16 +151,16 @@ class PortfolioDashboard: # faire les logs
                 ]
             df_bench_pivot = df_benchmark.pivot(index='date', columns='ticker', values='close').sort_index()
 
-            # 4. Supprimer les lignes où toutes les valeurs sont NaN (dates où aucun prix disponible)
+            # 4. Drop rows where all values are NaN (dates with no available prices)
             df_pivot = df_pivot.dropna(how='any', axis=0)
             df_bench_pivot = df_bench_pivot.dropna(how='any', axis=0)
 
-            # 5. Garder seulement les dates communes aux deux DataFrames
+            # 5. Keep only the dates common to both DataFrames
             common_dates = df_pivot.index.intersection(df_bench_pivot.index)
             df_pivot = df_pivot.loc[common_dates]
             df_bench_pivot = df_bench_pivot.loc[common_dates]
 
-            # 6. Calculer les moyennes équipondérées
+            # 6. Calculate the equally weighted averages
             portfolio_prices = df_pivot.mean(axis=1)
             benchmark_prices = df_bench_pivot.mean(axis=1)
             portfolio_prices = portfolio_prices.dropna()
@@ -168,7 +168,6 @@ class PortfolioDashboard: # faire les logs
 
             st.info(f"{len(portfolio_prices)} trading days used for calculations.")
 
-            # 7. Appeler ta fonction helpers pour les indicateurs
             ind_pf = compute_indicators(portfolio_prices, self.config)
             ind_bm = compute_indicators(benchmark_prices, self.config)
 
@@ -186,7 +185,7 @@ class PortfolioDashboard: # faire les logs
             df_comp = pd.DataFrame(resultats, index=indicateurs)
             df_comp["Gap"] = df_comp["Portfolio"] - df_comp["Benchmark"]
 
-            # Affichage du tableau final
+            # Display final dataset
             st.dataframe(df_comp)
 
             df_evol = pd.DataFrame({
