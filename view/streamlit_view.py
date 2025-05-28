@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 import streamlit as st
+import matplotlib.pyplot as plt
 
 from model.model_config import EtlConfig
 
@@ -71,29 +72,29 @@ class PortfolioDashboard: # faire les logs
         return df_period['ticker'].unique().tolist()
 
     def display(self):
-        st.title("Dashboard portefeuille")
+        st.title("Portfolio Dashboard")
 
-        date_input = st.date_input(
-            "Choisissez la période d'analyse",
-            value=(self.min_date, self.max_date),
+        start_date = st.date_input(
+            "Select start date",
+            value=self.min_date,
             min_value=self.min_date,
-            max_value=self.max_date
+            max_value=self.max_date,
+            key="start_date"
+        )
+        end_date = st.date_input(
+            "Select end date",
+            value=self.max_date,
+            min_value=self.min_date,
+            max_value=self.max_date,
+            key="end_date"
         )
 
-        # Cas 1 : Aucune date sélectionnée (cas ultra rare)
-        if date_input is None or (isinstance(date_input, tuple) and any(d is None for d in date_input)):
-            st.warning("Veuillez sélectionner une période (deux dates).")
+        if not start_date or not end_date:
+            st.warning("Please select both a start and end date.")
             return
 
-        # Cas 2 : Une seule date (et pas une plage)
-        if not isinstance(date_input, tuple) or len(date_input) != 2:
-            st.warning("Veuillez sélectionner une période complète (date de début ET date de fin).")
-            return
-
-        start_date, end_date = date_input
-        # Cas 3 : Dates invalides (ordre incorrect)
         if start_date >= end_date:
-            st.warning("La date de fin doit être postérieure à la date de début.")
+            st.warning("The end date must be later than the start date.")
             return
 
         # 2. Récupère les tickers valides pour cette période
@@ -103,12 +104,12 @@ class PortfolioDashboard: # faire les logs
         # 3. Adapter dynamiquement les tickers par défaut selon la période
         if len(tickers_in_period) == 0:
             st.warning(
-                "Aucune action cotée sur cette période. Attention : il n'y a pas de cotation le week-end ni les jours fériés.")
+                "No stocks are traded during this period. Note: Markets are closed on weekends and public holidays.")
             return
 
         # 4. Multiselect tickers (limité à ceux valides)
         tickers = st.multiselect(
-            "Choisissez vos actions",
+            "Select your stocks",
             options=tickers_in_period,
             default=default_tickers,
             max_selections=3,
@@ -118,19 +119,19 @@ class PortfolioDashboard: # faire les logs
 
         # 5. Contrôle UX final
         if not tickers:
-            st.info("Sélectionnez au moins une action pour activer l'analyse.")
+            st.info("Select at least one stock to enable the analysis.")
             return  # Pas de bouton tant que rien n'est sélectionné
 
-        if st.button("Lancer l'analyse"):
+        if st.button("Run analysis"):
             df_result = self.df[
                 (self.df['date'] >= pd.Timestamp(start_date)) &
                 (self.df['date'] <= pd.Timestamp(end_date)) &
                 (self.df['ticker'].isin(tickers))
                 ]
             if df_result.empty:
-                st.warning("Aucune donnée sur cette période et ces actions. Veuillez changer la sélection.")
+                st.warning("No data available for this period and these stocks. Please change your selection.")
                 return
-            st.success("Analyse en cours !")
+            st.success("Analysis in progress !")
 
             # 1. Pivot portefeuille (tickers sélectionnés)
             df_pivot = df_result.pivot(index='date', columns='ticker', values='close').sort_index()
@@ -138,10 +139,10 @@ class PortfolioDashboard: # faire les logs
             # 2. garde uniquement les dates où tous les tickers ont un prix (évite biais jours fériés)**
             df_pivot = df_pivot.dropna(how='any', axis=0)
             if df_pivot.empty:
-                st.warning("Aucune date commune de cotation pour toutes les actions sélectionnées sur la période.")
+                st.warning("No common trading date for all selected stocks in the chosen period.")
                 return
 
-            # 3. Benchmark : moyenne équipondérée de TOUS les tickers (benchmark officiel)
+            # 3. Benchmark : moyenne équipondérée de TOUS les tickers (benchmark officiel) ????
             benchmark_tickers = self.df['ticker'].unique()
             df_benchmark = self.df[
                 (self.df['date'] >= pd.Timestamp(start_date)) &
@@ -159,62 +160,112 @@ class PortfolioDashboard: # faire les logs
             df_pivot = df_pivot.loc[common_dates]
             df_bench_pivot = df_bench_pivot.loc[common_dates]
 
-            # 6. Calculer les moyennes équipondérées (en ignorant les NaN éventuels par date)
+            # 6. Calculer les moyennes équipondérées
             portfolio_prices = df_pivot.mean(axis=1)
             benchmark_prices = df_bench_pivot.mean(axis=1)
             portfolio_prices = portfolio_prices.dropna()
             benchmark_prices = benchmark_prices.dropna()
 
-            st.info(f"{len(portfolio_prices)} jours de cotation utilisés pour les calculs.")
+            st.info(f"{len(portfolio_prices)} trading days used for calculations.")
 
             # 7. Appeler ta fonction helpers pour les indicateurs
             ind_pf = compute_indicators(portfolio_prices, self.config)
             ind_bm = compute_indicators(benchmark_prices, self.config)
 
             indicateurs = [
-                "Performance cumulée",
-                "Volatilité annualisée",
-                "Sharpe",
+                "Cumulative Performance",
+                "Annualized Volatility",
+                "Sharpe Ratio",
                 "Max Drawdown"
             ]
 
             resultats = {
-                "Portefeuille": [ind_pf[k] for k in indicateurs],
+                "Portfolio": [ind_pf[k] for k in indicateurs],
                 "Benchmark": [ind_bm[k] for k in indicateurs]
             }
             df_comp = pd.DataFrame(resultats, index=indicateurs)
-            df_comp["Écart"] = df_comp["Portefeuille"] - df_comp["Benchmark"]
-
-            # DEBUG - Afficher les têtes pour voir ce qu'il se passe
-            st.write("HEAD df_pivot (portfolio):")
-            st.write(df_pivot.head())
-            st.write("HEAD df_bench_pivot (benchmark):")
-            st.write(df_bench_pivot.head())
-            st.write("Portfolio prices:", portfolio_prices.head())
-            st.write("Benchmark prices:", benchmark_prices.head())
+            df_comp["Gap"] = df_comp["Portfolio"] - df_comp["Benchmark"]
 
             # Affichage du tableau final
             st.dataframe(df_comp)
 
+            df_evol = pd.DataFrame({
+                "Portfolio": portfolio_prices,
+                "Benchmark": benchmark_prices
+            }).dropna()
 
+            with st.expander("Show time series table"):
+                st.dataframe(df_evol)
 
-        # weights = {}  # On va remplir ce dictionnaire avec les pondérations choisies par l'utilisateur, par ticker
-        # total_weight = 0  # Pour additionner les pondérations et vérifier qu'on arrive bien à 1
-        # for ticker in tickers:  # Pour chaque action sélectionnée (max 3 ici)
-        #     # Pondération par défaut : soit celle du fichier de config, soit équipondéré si pas trouvé dans la config
-        #     default_weight = self.config.streamlit.portfolio.default_weights.get(ticker, 1 / len(tickers))
-        #     # Affiche un slider pour choisir la pondération de ce ticker
-        #     weight = st.slider(
-        #         f"Pondération de {ticker}",  # Label du slider
-        #         min_value=0.0, max_value=1.0,  # Slider de 0 à 1 (0% à 100%)
-        #         value=float(default_weight),  # Valeur affichée par défaut
-        #         step=0.01,  # On bouge le slider par pas de 1%
-        #         key=f"weight_{ticker}"  # Une clé unique pour chaque ticker (important dans Streamlit)
-        #     )
-        #     weights[ticker] = weight  # On sauvegarde la pondération dans le dict, ex : {'BNP.PA': 0.3, ...}
-        #     total_weight += weight
+            with st.expander("Portfolio vs Benchmark evolution chart"):
+                st.line_chart(df_evol)
 
-        # # Contrôle que la somme des pondérations fait bien 1 (ou presque)
-        # if abs(total_weight - 1) > 0.01:
-        #     st.warning(f"La somme des pondérations doit être égale à 1 (actuellement : {total_weight:.2f})")
-        #     return
+            df_selection_pf = self.df[self.df['ticker'].isin(tickers)]
+            df_selection_bm = self.df[self.df['ticker'].isin(benchmark_tickers)]
+
+            # Create a 2x2 grid of subplots for pie charts
+            fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+
+            # PORTFOLIO – sector
+            if not df_selection_pf.empty and "sector" in df_selection_pf.columns:
+                secteur_pf = df_selection_pf['sector'].value_counts(normalize=True)
+                if len(secteur_pf) > 1:
+                    secteur_pf.plot.pie(
+                        autopct='%1.0f%%', ylabel='', ax=axs[0, 0],
+                        title="Portfolio – Sector Breakdown"
+                    )
+                else:
+                    axs[0, 0].axis('off')
+                    axs[0, 0].set_title("Portfolio – Sector Breakdown (Single Sector)")
+            else:
+                axs[0, 0].axis('off')
+                axs[0, 0].set_title("Portfolio – Sector Breakdown (No data)")
+
+            # PORTFOLIO – country
+            if not df_selection_pf.empty and "country" in df_selection_pf.columns:
+                country_pf = df_selection_pf['country'].value_counts(normalize=True)
+                if len(country_pf) > 1:
+                    country_pf.plot.pie(
+                        autopct='%1.0f%%', ylabel='', ax=axs[0, 1],
+                        title="Portfolio – Country Breakdown"
+                    )
+                else:
+                    axs[0, 1].axis('off')
+                    axs[0, 1].set_title("Portfolio – Country Breakdown (Single Country)")
+            else:
+                axs[0, 1].axis('off')
+                axs[0, 1].set_title("Portfolio – Country Breakdown (No data)")
+
+            # BENCHMARK – sector
+            if not df_selection_bm.empty and "sector" in df_selection_bm.columns:
+                secteur_bm = df_selection_bm['sector'].value_counts(normalize=True)
+                if len(secteur_bm) > 1:
+                    secteur_bm.plot.pie(
+                        autopct='%1.0f%%', ylabel='', ax=axs[1, 0],
+                        title="Benchmark – Sector Breakdown"
+                    )
+                else:
+                    axs[1, 0].axis('off')
+                    axs[1, 0].set_title("Benchmark – Sector Breakdown (Single Sector)")
+            else:
+                axs[1, 0].axis('off')
+                axs[1, 0].set_title("Benchmark – Sector Breakdown (No data)")
+
+            # BENCHMARK – country
+            if not df_selection_bm.empty and "country" in df_selection_bm.columns:
+                country_bm = df_selection_bm['country'].value_counts(normalize=True)
+                if len(country_bm) > 1:
+                    country_bm.plot.pie(
+                        autopct='%1.0f%%', ylabel='', ax=axs[1, 1],
+                        title="Benchmark – Country Breakdown"
+                    )
+                else:
+                    axs[1, 1].axis('off')
+                    axs[1, 1].set_title("Benchmark – Country Breakdown (Single Country)")
+            else:
+                axs[1, 1].axis('off')
+                axs[1, 1].set_title("Benchmark – Country Breakdown (No data)")
+
+            plt.tight_layout(pad=5)
+            with st.expander("Portfolio & Benchmark Pie Charts"):
+                st.pyplot(fig)
