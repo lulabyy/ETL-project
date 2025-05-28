@@ -11,7 +11,7 @@ logger = helpers_logger.initLogger("main_streamlit_logger", config.log_path, "ma
 logging.getLogger("sqlalchemy.engine.Engine").disabled = True
 
 def main_streamlit():
-    logger.info("Démarrage de streamlit")
+    logger.info("Starting Streamlit")
 
     data = Data(config)
     dashboard = PortfolioDashboard(data.df_merged, config)

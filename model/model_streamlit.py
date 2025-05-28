@@ -20,9 +20,7 @@ class StreamlitExportConfig:
 class StreamlitPortfolioConfig:
     max_nb_tickers: int
     default_tickers: Sequence[str]
-    default_weights: Dict[str, float]
-    allowed_range: Sequence[float]
-    enforce_100_percent: bool
+
 
 @dataclass
 class StreamlitPerformanceConfig:
