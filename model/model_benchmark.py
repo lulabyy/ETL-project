@@ -64,10 +64,12 @@ class BenchmarkConfig:
     Attributes:
         name (str): Name of the benchmark.
         tickers_info (BenchmarkTickersInfo): Information about the tickers to load.
+        components_url: URL component (e.g., slug or path) used to locate the benchmark resource.
         columns (BenchmarkColumns): Data column structure.
         logger (BenchmarkLogger): Logging parameters for this benchmark.
     """
     name: str
+    components_url: str
     tickers_info: BenchmarkTickersInfo
     columns: BenchmarkColumns
     logger: BenchmarkLogger

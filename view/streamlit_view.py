@@ -384,6 +384,7 @@ class PortfolioDashboard:
             None
         """
         st.title("Portfolio Dashboard")
+        st.write(f"Benchmark index: [{self.config.benchmark.name}]({self.config.benchmark.components_url})")
         self.logger.info("Displaying Portfolio Dashboard")
 
         # les dates

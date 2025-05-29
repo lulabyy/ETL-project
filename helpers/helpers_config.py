@@ -76,6 +76,7 @@ def get_config() -> Config:
 
         benchmark = BenchmarkConfig(
             name = config["benchmark"]["name"],
+            components_url = config["benchmark"]["components_url"],
             tickers_info = BenchmarkTickersInfo(**config["benchmark"]["tickers_info"]),
             columns = BenchmarkColumns(**config["benchmark"]["columns"]),
             logger = BenchmarkLogger(**config["benchmark"]["logger"])

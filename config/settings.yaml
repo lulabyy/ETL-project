@@ -23,6 +23,7 @@ etl_output:
 
 benchmark:
   name: 'Euronext100'
+  components_url: 'https://fr.finance.yahoo.com/quote/%5EN100/components/'
   tickers_info:
     dir: 'data'
     file: 'metadata.csv'
