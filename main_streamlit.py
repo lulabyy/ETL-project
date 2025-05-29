@@ -6,12 +6,15 @@ It must be started via the command:
     streamlit run main_streamlit.py
 or by running the provided run_streamlit.py launcher.
 
+------------------------------------------------------------------------------------------
 Do NOT run this script directly with: python main_streamlit.py
 If you do so, the user interface will not start properly.
+------------------------------------------------------------------------------------------
 
 See main_etl.py to generate and update the necessary data for the dashboard.
 """
 
+import os
 import sys
 import logging
 from helpers import helpers_config
@@ -42,7 +45,14 @@ def main_streamlit() -> None:
     dashboard.display()
 
 # Prevent direct execution
-if __name__ == "__main__":
+def is_streamlit():
+    # Streamlit sets this variable when running the script
+    return any(
+        key.startswith('STREAMLIT_') and 'RUN' in key
+        for key in os.environ
+    )
+
+if __name__ == "__main__" and not is_streamlit():
     print(
         "This script is not intended to be run directly.\n"
         "Please use the following command to launch the dashboard:\n"
