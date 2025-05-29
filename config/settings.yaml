@@ -74,13 +74,6 @@ metadata:
     filename: "etl_metadata.log"
 
 streamlit:
-  export:
-    excel:
-      dir: 'downloads'
-      file: 'dl_excel_v{}.xlsx'
-    sqlite:
-      dir: 'downloads'
-      file: 'dl_sqlite_v{}.db'
   portfolio:
     max_nb_tickers: 3
     default_tickers:
