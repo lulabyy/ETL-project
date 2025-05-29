@@ -12,42 +12,6 @@ from dataclasses import dataclass
 from typing import List, Dict, Sequence
 
 @dataclass
-class StreamlitExportExcel:
-    """
-    Configuration for exporting Streamlit dashboard data to an Excel file.
-
-    Attributes:
-        dir (str): Directory where the Excel file will be saved.
-        file (str): Name of the Excel file.
-    """
-    dir: str
-    file: str
-
-@dataclass
-class StreamlitExportSQLite:
-    """
-    Configuration for exporting Streamlit dashboard data to a SQLite database.
-
-    Attributes:
-        dir (str): Directory where the SQLite database file will be saved.
-        file (str): Name of the SQLite database file.
-    """
-    dir: str
-    file: str
-
-@dataclass
-class StreamlitExportConfig:
-    """
-    Aggregates export configurations for the Streamlit dashboard.
-
-    Attributes:
-        excel (StreamlitExportExcel): Excel export configuration.
-        sqlite (StreamlitExportSQLite): SQLite export configuration.
-    """
-    excel: StreamlitExportExcel
-    sqlite: StreamlitExportSQLite
-
-@dataclass
 class StreamlitPortfolioConfig:
     """
     Portfolio settings for the Streamlit dashboard.
@@ -91,12 +55,10 @@ class StreamlitConfig:
     Complete Streamlit dashboard configuration, including export, portfolio, performance, and logging options.
 
     Attributes:
-        export (StreamlitExportConfig): Export (Excel/SQLite) settings.
         portfolio (StreamlitPortfolioConfig): Portfolio settings for the dashboard.
         performance (StreamlitPerformanceConfig): Performance metric settings.
         logger (StreamlitLogger): Logger configuration.
     """
-    export: StreamlitExportConfig
     portfolio: StreamlitPortfolioConfig
     performance: StreamlitPerformanceConfig
     logger: StreamlitLogger

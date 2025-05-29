@@ -271,7 +271,10 @@ class PortfolioDashboard:
         benchmark_prices = benchmark_prices.dropna()
         self.logger.info("Portfolio prices length: %d, Benchmark prices length: %d",
                          len(portfolio_prices), len(benchmark_prices))
-        st.info(f"{len(portfolio_prices)} trading days used for calculations.")
+        st.info(
+            f"{len(portfolio_prices)} trading days used for calculations. "
+            f"Only common dates from {portfolio_prices.index.min().date()} to {portfolio_prices.index.max().date()} between portfolio and benchmark are included."
+        )
 
         return portfolio_prices, benchmark_prices, tickers, benchmark_tickers
 

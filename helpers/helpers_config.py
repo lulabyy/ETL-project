@@ -42,9 +42,6 @@ from model.model_etl_output import (
 )
 from model.model_streamlit import (
     StreamlitConfig,
-    StreamlitExportConfig,
-    StreamlitExportExcel,
-    StreamlitExportSQLite,
     StreamlitPortfolioConfig,
     StreamlitPerformanceConfig,
     StreamlitLogger
@@ -97,10 +94,6 @@ def get_config() -> Config:
             excel = ExcelOutputConfig(**config["etl_output"]["excel"])
         ),
         streamlit = StreamlitConfig(
-            export = StreamlitExportConfig(
-                excel = StreamlitExportExcel(**config["streamlit"]["export"]["excel"]),
-                sqlite = StreamlitExportSQLite(**config["streamlit"]["export"]["sqlite"])
-            ),
             portfolio = StreamlitPortfolioConfig(**config["streamlit"]["portfolio"]),
             performance = StreamlitPerformanceConfig(**config["streamlit"]["performance"]),
             logger = StreamlitLogger(**config["streamlit"]["logger"])
