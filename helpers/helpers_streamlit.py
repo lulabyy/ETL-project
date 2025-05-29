@@ -114,8 +114,8 @@ def compute_indicators(prices: pd.Series, config: Config) -> Dict[str,float]:
     sharpe = compute_sharpe(returns, config.streamlit.performance.risk_free_rate, config.streamlit.performance.trading_days_per_year)
     max_dd = compute_max_drawdown(prices)
     return {
-        "Cumulative Performance (%)": percent(perf),
-        "Annualized Volatility (%)": percent(vol),
-        "Max Drawdown (%)": percent(max_dd),
-        "Sharpe Ratio": sharpe
+        "cumulative_return": percent(perf),
+        "annualized_volatility": percent(vol),
+        "max_drawdown": percent(max_dd),
+        "sharpe_ratio": sharpe
     }

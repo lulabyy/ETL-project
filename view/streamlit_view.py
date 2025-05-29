@@ -278,35 +278,27 @@ class PortfolioDashboard:
     def show_comparisons(self, portfolio_prices: pd.Series, benchmark_prices: pd.Series) -> None:
         """
         Compute and display performance indicators and comparison table between portfolio and benchmark.
-
-        Args:
-            portfolio_prices (pd.Series): Daily prices for the user's portfolio.
-            benchmark_prices (pd.Series): Daily prices for the benchmark.
-
-        Returns:
-            None
         """
+        metrics = self.config.streamlit.performance.metrics
+        metric_labels = {
+            "cumulative_return": "Cumulative Performance (%)",
+            "annualized_volatility": "Annualized Volatility (%)",
+            "sharpe_ratio": "Sharpe Ratio",
+            "max_drawdown": "Max Drawdown (%)"
+        }
+
         ind_pf = compute_indicators(portfolio_prices, self.config)
         ind_bm = compute_indicators(benchmark_prices, self.config)
-        self.logger.info("Indicators computed for portfolio and benchmark.")
-
-        indicateurs = [
-            "Cumulative Performance (%)",
-            "Annualized Volatility (%)",
-            "Max Drawdown (%)",
-            "Sharpe Ratio"
-        ]
 
         resultats = {
-            "Portfolio": [ind_pf[k] for k in indicateurs],
-            "Benchmark": [ind_bm[k] for k in indicateurs]
+            "Portfolio": [ind_pf[m] for m in metrics],
+            "Benchmark": [ind_bm[m] for m in metrics]
         }
-        df_comp = pd.DataFrame(resultats, index=indicateurs)
+        labels = [metric_labels.get(m, m) for m in metrics]
+        df_comp = pd.DataFrame(resultats, index=labels)
         df_comp["Gap (Portfolio - Benchmark)"] = df_comp["Portfolio"] - df_comp["Benchmark"]
 
         self.logger.info("Comparison dataframe ready for display.")
-
-        # Display final dataset
         st.dataframe(df_comp)
 
         df_evol = pd.DataFrame({
