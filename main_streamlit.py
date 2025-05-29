@@ -44,21 +44,4 @@ def main_streamlit() -> None:
     dashboard = PortfolioDashboard(data.df_merged, config)
     dashboard.display()
 
-# Prevent direct execution
-def is_streamlit():
-    # Streamlit sets this variable when running the script
-    return any(
-        key.startswith('STREAMLIT_') and 'RUN' in key
-        for key in os.environ
-    )
-
-if __name__ == "__main__" and not is_streamlit():
-    print(
-        "This script is not intended to be run directly.\n"
-        "Please use the following command to launch the dashboard:\n"
-        "    streamlit run main_streamlit.py\n"
-        "Or use the run_streamlit.py launcher provided."
-    )
-    sys.exit(1)
-
 main_streamlit()
