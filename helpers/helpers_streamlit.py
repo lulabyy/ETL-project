@@ -1,3 +1,21 @@
+"""
+helpers_streamlit.py
+
+This module provides utility functions for financial performance analysis and indicator computation,
+specifically for use in the Streamlit dashboard. It includes functions for calculating cumulative return,
+daily returns, annualized volatility, Sharpe ratio, and maximum drawdown, as well as for formatting
+values as percentages.
+
+These helpers are designed to be used in the dashboard code (e.g., streamlit_view.py) to display key
+portfolio and benchmark metrics.
+
+This file should not be executed directly. It is intended for import and use within other modules
+of the portfolio analytics application.
+
+See main_streamlit.py for the Streamlit application entry point,
+and main_etl.py for generating and refreshing the underlying data.
+"""
+
 from typing import Dict
 
 import numpy as np

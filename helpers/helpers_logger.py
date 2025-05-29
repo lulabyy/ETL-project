@@ -1,16 +1,38 @@
+"""
+helpers_logger.py
+
+This module provides a utility function to initialize and configure a logger for the application.
+It ensures that logs are written both to a specified log file and to the console, using a consistent and detailed format.
+
+Functionality:
+- initLogger: Creates and configures a logger instance with a given name, output directory, and filename.
+  The logger writes logs to both file and standard output, with formatting that includes timestamps, log level,
+  module/function/line and message details.
+
+Typical usage:
+- Used at the start of main scripts (such as main_streamlit.py and main_etl.py) to set up centralized logging.
+- Ensures logs are persisted for troubleshooting and monitoring, and visible in real time during execution.
+
+This module should be imported and used within other parts of the portfolio analytics application.
+It is not intended to be executed directly.
+
+See main_streamlit.py and main_etl.py for examples of logger initialization and usage.
+"""
+
 import logging
 import os
 
-def initLogger(log_name: str, log_dir_path: str, log_filename: str):
+def initLogger(log_name: str, log_dir_path: str, log_filename: str) -> logging.Logger:
     """
-   Initialize the logger and write the logs to the specified folder (default is ‘log’)
+    Initialize the logger and write the logs to the specified folder.
 
-    Parameters:
-    ----------
-    :param name: logger name
-    :param log_dir_path: dir path
-    :param log_filename: filename path
-    :return: the logger
+    Args:
+        log_name (str): Name for the logger instance.
+        log_dir_path (str): Path to the directory where logs will be stored.
+        log_filename (str): Name of the log file.
+
+    Returns:
+        logging.Logger: The initialized logger instance.
     """
     os.makedirs(log_dir_path, exist_ok=True)
 

@@ -1,4 +1,20 @@
-import os
+"""
+main_etl.py
+
+This script runs the complete ETL (Extract, Transform, Load) pipeline to prepare and update the data 
+used by the dashboard. It should be executed from the command line using:
+
+    python main_etl.py
+
+This script does NOT launch the Streamlit user interface. It is only responsible for generating 
+and refreshing the data sources.
+Use this script before starting the dashboard to ensure the data is up to date.
+
+To launch the dashboard, use 'streamlit run main_streamlit.py' or the run_streamlit.py launcher script.
+
+See main_streamlit.py for the Streamlit application code.
+"""
+
 import logging
 
 from repository import (
@@ -9,10 +25,6 @@ from helpers import (
     helpers_logger, helpers_config
 )
 
-from view.streamlit_view import (
-    PortfolioDashboard, Data
-)
-
 config = helpers_config.get_config()
 
 # Logger setup and logger object retrieval
@@ -20,7 +32,17 @@ logger = helpers_logger.initLogger("main_logger", config.log_path, "main.log")
 logging.getLogger("sqlalchemy.engine.Engine").disabled = True
 
 
-def main_etl():
+def main_etl() -> None:
+    """
+    Orchestrates the end-to-end ETL pipeline, including metadata and benchmark extraction, transformation,
+    and loading.
+
+    The function logs each major step of the pipeline for traceability. It instantiates and runs the ETL
+    processes for metadata and benchmarks.
+
+    Returns:
+        None
+    """
     logger.info("Starting the ETL pipeline")
 
     logger.info(f"Starting the Metadata ETL (see {config.metadata.logger.logname})")
@@ -36,17 +58,6 @@ def main_etl():
     benchmark_etl.load()
 
     logger.info("ETL pipeline completed")
-
-    # -------------------------------------------------------------------------------------------
-
-    logger.info("Starting Streamlit")
-
-    data = Data(config)
-    dashboard = PortfolioDashboard(config, data)
-    dashboard.display()
-
-    logger.info("Shutting down Streamlit")
-
 
 if __name__ == "__main__":
     main_etl()

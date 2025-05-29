@@ -1,3 +1,21 @@
+"""
+streamlit_view.py
+
+This module contains the Streamlit dashboard components and data handling classes for the portfolio analytics application.
+
+It provides:
+- The Data class, which loads and prepares the merged dataset for visualization.
+- The PortfolioDashboard class, which builds and displays the Streamlit interface, visualizations, and user interactions.
+
+This file is imported and used by main_streamlit.py, which is the entry point for launching the UI.
+
+Do not run this module directly. To interact with the dashboard, use:
+    streamlit run main_streamlit.py
+or the launcher script run_streamlit.py.
+
+See main_etl.py for instructions on how to generate or update the data.
+"""
+
 import os
 import pandas as pd
 from sqlalchemy import create_engine
@@ -12,6 +30,12 @@ from helpers.helpers_streamlit import compute_indicators
 
 class Data:
     def __init__(self, config: Config):
+        """
+        Initialize the Data class and load price and metadata tables from the database.
+
+        Args:
+            config (Config): Application configuration object.
+        """
         self.config = config
         self.logger = helpers_logger.initLogger(self.config.streamlit.logger.logname, self.config.log_path,
                                                 self.config.streamlit.logger.filename)
@@ -22,7 +46,13 @@ class Data:
         self.logger.info("Initializing Data class.")
         self.load_df_from_db()
 
-    def load_df_from_db(self):
+    def load_df_from_db(self) -> None:
+        """
+        Load price and metadata tables from the SQLite database and merge them on the 'ticker' column.
+
+        Raises:
+            Exception: If there is an error while loading data from the database.
+        """
         db_path = os.path.join(
             self.config.root_path,
             self.config.database.dir,
@@ -56,7 +86,14 @@ class Data:
             raise
 
 class PortfolioDashboard:
-    def __init__(self, df, config: Config):
+    def __init__(self, df: pd.DataFrame, config: Config):
+        """
+        Initialize the PortfolioDashboard with the merged DataFrame and configuration.
+
+        Args:
+            df (pd.DataFrame): Merged DataFrame with price and metadata.
+            config (Config): Application configuration object.
+        """
         self.config = config
         self.logger = helpers_logger.initLogger(self.config.streamlit.logger.logname, self.config.log_path,
                                                 self.config.streamlit.logger.filename)
@@ -67,7 +104,17 @@ class PortfolioDashboard:
         self.logger.info("PortfolioDashboard initialized with dataframe of shape %s", self.df.shape)
         self.logger.info("Min date: %s, Max date: %s", self.min_date, self.max_date)
 
-    def get_tickers_in_period(self, start_date, end_date):
+    def get_tickers_in_period(self, start_date: pd.Timestamp, end_date: pd.Timestamp) -> list[str]:
+        """
+        Retrieve the list of tickers traded within the selected date period.
+
+        Args:
+            start_date (datetime.date): Start date of the period.
+            end_date (datetime.date): End date of the period.
+
+        Returns:
+            list: List of tickers traded within the specified period.
+        """
         df_period = self.df[
             (self.df['date'] >= pd.Timestamp(start_date)) &
             (self.df['date'] <= pd.Timestamp(end_date))
@@ -76,7 +123,13 @@ class PortfolioDashboard:
         self.logger.info("Tickers found for the period: %s", tickers)
         return tickers
     
-    def select_dates(self):
+    def select_dates(self) -> tuple[pd.Timestamp | None, pd.Timestamp | None]:
+        """
+        Display Streamlit date selectors for the analysis period.
+
+        Returns:
+            tuple: (start_date, end_date) as selected by the user, or (None, None) if invalid.
+        """
         start_date = st.date_input(
             "Select start date",
             value=self.min_date,
@@ -106,7 +159,17 @@ class PortfolioDashboard:
         
         return start_date, end_date
 
-    def select_tickers(self, start_date, end_date):
+    def select_tickers(self, start_date: pd.Timestamp, end_date: pd.Timestamp) -> list[str]:
+        """
+        Display Streamlit multiselect to choose tickers for the selected period.
+
+        Args:
+            start_date (datetime.date): Start date of the period.
+            end_date (datetime.date): End date of the period.
+
+        Returns:
+            list: List of selected tickers.
+        """
         # 1. Retrieve valid tickers for this period
         tickers_in_period = self.get_tickers_in_period(start_date, end_date)
         default_tickers = [t for t in self.config.streamlit.portfolio.default_tickers if t in tickers_in_period]
@@ -136,7 +199,27 @@ class PortfolioDashboard:
 
         return tickers
 
-    def prepare_data(self, start_date, end_date, tickers):
+    def prepare_data(
+        self,
+        start_date: pd.Timestamp,
+        end_date: pd.Timestamp,
+        tickers: list[str]
+    ) -> tuple[pd.Series | None, pd.Series | None, list[str] | None, list[str] | None]:
+        """
+        Prepare time series data for analysis based on selected dates and tickers.
+
+        Args:
+            start_date (datetime.date): Start date of the analysis period.
+            end_date (datetime.date): End date of the analysis period.
+            tickers (list): List of selected tickers.
+
+        Returns:
+            tuple: (portfolio_prices, benchmark_prices, tickers, benchmark_tickers)
+                - portfolio_prices (pd.Series): Daily prices for the user's portfolio.
+                - benchmark_prices (pd.Series): Daily prices for the benchmark.
+                - tickers (list): Selected tickers.
+                - benchmark_tickers (list): All tickers in the benchmark.
+        """
         df_result = self.df[
             (self.df['date'] >= pd.Timestamp(start_date)) &
             (self.df['date'] <= pd.Timestamp(end_date)) &
@@ -192,7 +275,17 @@ class PortfolioDashboard:
 
         return portfolio_prices, benchmark_prices, tickers, benchmark_tickers
 
-    def show_comparisons(self, portfolio_prices, benchmark_prices) -> None:
+    def show_comparisons(self, portfolio_prices: pd.Series, benchmark_prices: pd.Series) -> None:
+        """
+        Compute and display performance indicators and comparison table between portfolio and benchmark.
+
+        Args:
+            portfolio_prices (pd.Series): Daily prices for the user's portfolio.
+            benchmark_prices (pd.Series): Daily prices for the benchmark.
+
+        Returns:
+            None
+        """
         ind_pf = compute_indicators(portfolio_prices, self.config)
         ind_bm = compute_indicators(benchmark_prices, self.config)
         self.logger.info("Indicators computed for portfolio and benchmark.")
@@ -226,7 +319,17 @@ class PortfolioDashboard:
         with st.expander("Portfolio vs Benchmark evolution chart"):
             st.line_chart(df_evol)
 
-    def show_pie_charts(self, tickers, benchmark_tickers) -> None:
+    def show_pie_charts(self, tickers: list[str], benchmark_tickers: list[str]) -> None:
+        """
+        Display pie charts of sector and country breakdowns for the portfolio and benchmark.
+
+        Args:
+            tickers (list): List of selected portfolio tickers.
+            benchmark_tickers (list): List of benchmark tickers.
+
+        Returns:
+            None
+        """
         df_selection_pf = self.df[self.df['ticker'].isin(tickers)]
         df_selection_bm = self.df[self.df['ticker'].isin(benchmark_tickers)]
 
@@ -246,7 +349,19 @@ class PortfolioDashboard:
             st.pyplot(fig)
 
     @staticmethod
-    def plot_pie(df, col, ax, title):
+    def plot_pie(df: pd.DataFrame, col: str, ax: plt.Axes, title: str) -> None:
+        """
+        Plot a pie chart of the value counts of a column in a DataFrame.
+
+        Args:
+            df (pd.DataFrame): DataFrame to use.
+            col (str): Column to plot.
+            ax (matplotlib.axes.Axes): Axis to plot on.
+            title (str): Title of the chart.
+
+        Returns:
+            None
+        """
         if not df.empty and col in df.columns:
             counts = df[col].value_counts(normalize=True)
             if len(counts) > 1:
@@ -260,7 +375,15 @@ class PortfolioDashboard:
             ax.axis('off')
             ax.set_title(f"{title} (No data)")
 
-    def display(self):
+    def display(self) -> None:
+        """
+        Main method to display the Portfolio Dashboard in Streamlit.
+
+        This method orchestrates the selection of dates and tickers, triggers analysis, and displays results.
+
+        Returns:
+            None
+        """
         st.title("Portfolio Dashboard")
         self.logger.info("Displaying Portfolio Dashboard")
 

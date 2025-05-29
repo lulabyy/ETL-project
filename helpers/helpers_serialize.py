@@ -1,9 +1,24 @@
-import json
+"""
+helpers_serialize.py
+
+This module provides utility functions for serializing and deserializing data to and from common configuration file formats,
+including YAML, JSON, and TOML. It enables easy reading and writing of structured configuration or data files used throughout
+the portfolio analytics application.
+
+Functions:
+- get_serialized_data: Reads and deserializes data from a file (YAML, JSON, or TOML) into a Python dictionary or list.
+- dict_to_serialized_file: Serializes a Python dictionary and writes it to a file in the specified format, based on the file extension.
+
+These helpers are intended to be imported and used within other modules. This file should not be executed directly.
+
+See main_etl.py for data pipeline orchestration and main_streamlit.py for the Streamlit dashboard entry point.
+"""
+
 import os.path
+
 from typing import Dict
 
-import sqlite3
-
+import json
 import tomli
 import toml
 import yaml
@@ -21,11 +36,14 @@ def get_serialized_data(path: str) -> Dict:
 
     If the file extension is unsupported, a `ValueError` is raised.
 
-    :param path: The file path of the serialized data to be loaded.
-                  This must be a valid path to a file with a supported extension (.yaml, .json, or .toml).
-    :return: A Python dictionary or list containing the deserialized data.
-             The return type depends on the content of the file (e.g., a dictionary for JSON and TOML, a list or dictionary for YAML).
-    :raises ValueError: If the file extension is not supported or the file cannot be opened.
+    Args:
+        path (str): The file path of the serialized data to be loaded. Must be a valid path to a file with a supported extension (.yaml, .json, .toml).
+
+    Returns:
+        dict or list: A Python dictionary or list containing the deserialized data. The return type depends on the content of the file.
+
+    Raises:
+        ValueError: If the file extension is not supported or the file cannot be opened.
     """
     _, extension = os.path.splitext(path)
 
@@ -52,11 +70,15 @@ def dict_to_serialized_file(data: Dict, path: str) -> None:
 
     The function will raise a `ValueError` if the file extension is unsupported.
 
-    :param data: The Python dictionary to be serialized and written to the file.
-    :param path: The file path where the serialized data will be saved.
-                  The file extension determines the format of the serialized data.
-                  Supported extensions: .yaml, .json, .toml.
-    :raises ValueError: If the file extension is not supported.
+    Args:
+        data (dict): The Python dictionary to be serialized and written to the file.
+        path (str): The file path where the serialized data will be saved. The file extension determines the format (.yaml, .json, .toml).
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the file extension is not supported.
     """
     _, extension = os.path.splitext(path)
 
@@ -69,4 +91,3 @@ def dict_to_serialized_file(data: Dict, path: str) -> None:
             toml.dump(data, file)
 
         raise ValueError(f"Unsupported file extension {extension} | file={path}")
-

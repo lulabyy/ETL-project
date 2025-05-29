@@ -1,3 +1,21 @@
+"""
+etl_benchmark.py
+
+This module implements the ETL (Extract, Transform, Load) pipeline for benchmark data used in the portfolio analytics dashboard.
+
+It defines the BenchmarkETL class, which is responsible for:
+- Extracting raw benchmark data from source(s)
+- Transforming and cleaning the data
+- Loading the processed data into the appropriate storage or dataframes
+
+etl_benchmark.py is called by main_etl.py during the ETL process. It should not be executed directly.
+
+To run the full ETL pipeline, use:
+    python main_etl.py
+
+See main_streamlit.py for launching the Streamlit dashboard using the processed data.
+"""
+
 import os
 import pandas as pd
 import yfinance as yf
@@ -9,12 +27,28 @@ from helpers import helpers_export
 
 class BenchmarkETL():
     def __init__(self, config: Config):
+        """
+        Initialize the BenchmarkETL object.
+
+        Args:
+            config (EtlConfig): Configuration object for the ETL process.
+        """
         self.logger = helpers_logger.initLogger(config.benchmark.logger.logname, config.log_path, config.benchmark.logger.filename)
         self.config = config
         self.df_raw = None
         self.df_transformed = None
 
-    def extract(self):
+    def extract(self) -> None:
+        """
+        Extract benchmark data from metadata and the yfinance API.
+
+        This method loads the list of tickers from the metadata file, then downloads their historical price data using yfinance.
+        The raw data is stored in self.df_raw.
+
+        Raises:
+            Exception: If reading the metadata file or fetching data from yfinance fails.
+            ValueError: If the ticker column is missing in the metadata.
+        """
         # 1. on récupere le path du csv des metadata pour récuperer les tickers du benchmark
         absolute_metadata_path = os.path.join(self.config.root_path, self.config.benchmark.tickers_info.dir, self.config.benchmark.tickers_info.file)
         self.logger.info(f"Extracting benchmark tickers from: {os.path.relpath(absolute_metadata_path, start=self.config.root_path)}")
@@ -52,7 +86,16 @@ class BenchmarkETL():
         self.logger.info(f"yfinance data shape: {df_yf.shape}")
 
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        Transform the extracted benchmark data into a clean format.
+
+        This method flattens the raw data, cleans and converts columns as needed, and stores the result in self.df_transformed.
+
+        Raises:
+            ValueError: If extract() was not called before transform().
+            Exception: If an error occurs during data transformation.
+        """
         if self.df_raw is None:
             self.logger.error("Data not extracted. extract() must be called before transform().")
             raise ValueError("No data to transform.")
@@ -112,7 +155,16 @@ class BenchmarkETL():
             self.logger.exception(f"Error while transforming: {e}")
             raise  
 
-    def load(self):
+    def load(self) -> None:
+        """
+        Load the transformed benchmark data into Excel and/or SQLite, as specified in the configuration.
+
+        This method exports the cleaned DataFrame to Excel and/or SQLite database, depending on the configuration.
+
+        Raises:
+            ValueError: If transform() was not called before load().
+            Exception: If an error occurs during export to Excel or SQLite.
+        """
         if self.df_transformed is None:
             self.logger.error("Data not transformed. transform() must be called before load().")
             raise ValueError("No data to load.")

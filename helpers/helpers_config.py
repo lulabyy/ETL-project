@@ -1,3 +1,23 @@
+"""
+helpers_config.py
+
+This module provides a helper function to load and construct the centralized configuration object
+(`Config`) for the portfolio analytics application.
+
+Key functionality:
+- get_config: Loads application settings from the YAML configuration file, constructs instances of all
+  data classes for benchmarks, metadata, ETL output, database, and Streamlit dashboard settings,
+  and returns a fully-populated `Config` object.
+
+Typical usage:
+- Use this at the start of scripts or modules (such as main_streamlit.py, main_etl.py, or ETL modules)
+  to access all application-wide parameters and paths in a type-safe, structured manner.
+
+This module should be imported and used, not executed directly.
+
+See main_etl.py for data pipeline orchestration and main_streamlit.py for the Streamlit dashboard entry point.
+"""
+
 import os
 
 from model.model_config import (

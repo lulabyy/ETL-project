@@ -1,3 +1,21 @@
+"""
+etl_metadata.py
+
+This module implements the ETL (Extract, Transform, Load) pipeline for metadata used in the portfolio analytics dashboard.
+
+It defines the MetadataETL class, which is responsible for:
+- Extracting raw metadata from source(s)
+- Transforming and cleaning the metadata
+- Loading the processed metadata into the appropriate storage or dataframes
+
+etl_metadata.py is called by main_etl.py during the ETL process. It should not be executed directly.
+
+To run the full ETL pipeline, use:
+    python main_etl.py
+
+See main_streamlit.py for launching the Streamlit dashboard using the processed data.
+"""
+
 import pandas as pd
 import os
 
@@ -8,12 +26,27 @@ from helpers import helpers_export
 
 class MetadataETL():
     def __init__(self, config: Config):
+        """
+        Initialize the MetadataETL object.
+
+        Args:
+            config (EtlConfig): Configuration object for the ETL process.
+        """
         self.logger = helpers_logger.initLogger(config.metadata.logger.logname, config.log_path, config.metadata.logger.filename)
         self.config = config
         self.df_raw = None
         self.df_transformed = None
 
-    def extract(self):
+    def extract(self) -> None:
+        """
+        Extract metadata from the configured CSV file.
+
+        This method loads the metadata from a CSV file defined in the configuration
+        and stores the raw DataFrame in self.df_raw.
+
+        Raises:
+            Exception: If reading the CSV file fails.
+        """
         # on récupere le path du csv des metadatas
         absolute_data_path = os.path.join(self.config.root_path, self.config.metadata.dir, self.config.metadata.file)
         self.logger.info(f"Extracting data from: {os.path.relpath(absolute_data_path, start=self.config.root_path)}")
@@ -25,7 +58,17 @@ class MetadataETL():
             self.logger.exception(f"Error while extracting: {e}")
             raise
 
-    def transform(self):
+    def transform(self) -> None:
+        """
+        Transform the extracted metadata into a clean format.
+
+        This method drops unnecessary columns, converts types, renames columns,
+        and stores the result in self.df_transformed.
+
+        Raises:
+            ValueError: If extract() was not called before transform().
+            Exception: If an error occurs during data transformation.
+        """
         if self.df_raw is None:
             self.logger.error("Data not extracted. extract() must be called before transform().")
             raise ValueError("No data to transform.")
@@ -66,7 +109,7 @@ class MetadataETL():
             self.logger.exception(f"Error while transforming: {e}")
             raise    
 
-    def load(self):
+    def load(self) -> None:
         if self.df_transformed is None:
             self.logger.error("Data not transformed. transform() must be called before load().")
             raise ValueError("No data to load.")

@@ -1,3 +1,24 @@
+"""
+helpers_export.py
+
+This module provides utility functions for exporting and importing data between pandas DataFrames and two common storage formats:
+- Excel files (.xlsx)
+- SQLite databases
+
+Key functionalities:
+- dataframes_to_excel: Exports a dictionary of DataFrames to an Excel file, each DataFrame as a separate sheet.
+- dataframes_to_db: Exports a dictionary of DataFrames to a SQLite database, with options to append or replace data and drop tables.
+- get_sqlite_table_names: Retrieves the list of table names from a SQLite database.
+- get_excel_sheet_names: Retrieves the list of sheet names from an Excel file.
+
+These helpers are designed for use in ETL processes, data pipelines, or wherever bulk data export/import is needed within the portfolio analytics application.
+
+This module should be imported and used by other modules, such as ETL scripts or dashboard backends.
+It is not intended to be executed directly.
+
+See main_etl.py for data pipeline orchestration and main_streamlit.py for the Streamlit dashboard entry point.
+"""
+
 import os
 from typing import Dict, Literal, List
 
@@ -8,14 +29,11 @@ from sqlalchemy import create_engine, MetaData, inspect
 IfExists = Literal["fail", "replace", "append"]
 
 def dataframes_to_excel(dataframes: Dict[str, pd.DataFrame], excel_full_path: str) -> None:
-
     """
     Export DataFrames to an Excel file from a dict like keys=sheet names and values=DataFrame
     Args:
-        dataframes (Dict[str, pd.DataFrame]): Dictionary where keys are table names and values are DataFrames to export.
-        db_path (str): Full path to the SQLite database file.
-        drop_all_tables (bool): If True, drop all tables before inserting new data.
-        append_data (bool): If True, append data to existing tables; if False, replace existing data.
+        dataframes (Dict[str, pd.DataFrame]): Dictionary where keys are sheet names and values are DataFrames to export.
+        excel_full_path (str): Full path to the Excel file to create or update.
     Returns:
         None
     """
@@ -38,7 +56,7 @@ def dataframes_to_excel(dataframes: Dict[str, pd.DataFrame], excel_full_path: st
                 df.to_excel(writer, sheet_name=sheet, merge_cells=False, index=True)
 
 
-def dataframes_to_db(dataframes: Dict[str, pd.DataFrame], db_path: str, drop_all_tables: bool = False, append_data: bool = False):
+def dataframes_to_db(dataframes: Dict[str, pd.DataFrame], db_path: str, drop_all_tables: bool = False, append_data: bool = False) -> None:
     """
     Create a SQLite database from a dict like keys=sheet names and values=DataFrame
     If the SQLite database already exists, current data (before this new insertion) could be kept or erased with the drop_all_tables parameter
