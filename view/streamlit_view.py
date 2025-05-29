@@ -356,13 +356,17 @@ class PortfolioDashboard:
         """
         if not df.empty and col in df.columns:
             counts = df[col].value_counts(normalize=True)
-            if len(counts) > 1:
-                counts.plot.pie(
-                    autopct='%1.0f%%', ylabel='', ax=ax, title=title
-                )
-            else:
+            if len(counts) == 0:
                 ax.axis('off')
-                ax.set_title(f"{title} (Single {col.title()})")
+                ax.set_title(f"{title} (No data)")
+                return
+            counts.plot.pie(
+                autopct='%1.0f%%',
+                ylabel='',
+                ax=ax,
+                title=title,
+                labels=counts.index
+            )
         else:
             ax.axis('off')
             ax.set_title(f"{title} (No data)")
