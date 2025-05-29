@@ -93,8 +93,8 @@ streamlit:
     metrics:
       - cumulative_return
       - annualized_volatility
-      - sharpe_ratio
       - max_drawdown
+      - sharpe_ratio
   logger:
     logname: "view_streamlit_logger"
     filename: "view_streamlit.log"
