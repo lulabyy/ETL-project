@@ -7,14 +7,17 @@ from sqlalchemy import create_engine, MetaData, inspect
 
 IfExists = Literal["fail", "replace", "append"]
 
-def dataframes_to_excel(
-    dataframes: Dict[str, pd.DataFrame], excel_full_path: str
-) -> None:
+def dataframes_to_excel(dataframes: Dict[str, pd.DataFrame], excel_full_path: str) -> None:
+
     """
     Export DataFrames to an Excel file from a dict like keys=sheet names and values=DataFrame
-    :param dataframes: DataFrames as Dict[sheet_name, data]
-    :param excel_full_path: full path of the Excel File
-    :return: None
+    Args:
+        dataframes (Dict[str, pd.DataFrame]): Dictionary where keys are table names and values are DataFrames to export.
+        db_path (str): Full path to the SQLite database file.
+        drop_all_tables (bool): If True, drop all tables before inserting new data.
+        append_data (bool): If True, append data to existing tables; if False, replace existing data.
+    Returns:
+        None
     """
     os.makedirs(os.path.dirname(excel_full_path), exist_ok=True)
     
@@ -35,22 +38,18 @@ def dataframes_to_excel(
                 df.to_excel(writer, sheet_name=sheet, merge_cells=False, index=True)
 
 
-def dataframes_to_db(
-    dataframes: Dict[str, pd.DataFrame],
-    db_path: str,
-    drop_all_tables: bool = False,
-    append_data: bool = False,
-):
+def dataframes_to_db(dataframes: Dict[str, pd.DataFrame], db_path: str, drop_all_tables: bool = False, append_data: bool = False):
     """
     Create a SQLite database from a dict like keys=sheet names and values=DataFrame
-    If the SQLite database already exists, current data (before this new insertion) could be kept or erased with the
-    drop_all_tables parameter
-    :param dataframes: DataFrames as Dict(sheet_name, Data)
-    :param db_path: full database path
-    :param drop_all_tables: if true, all tables will be deleted
-    :param append_data: if True, data will be added to the current table. If False, current data will be erased before
-    the insertion
-    :return: None
+    If the SQLite database already exists, current data (before this new insertion) could be kept or erased with the drop_all_tables parameter
+    Args:
+        dataframes (Dict[str, pd.DataFrame]): Dictionary where keys are table names and values are DataFrames to export.
+        db_path (str): Full path to the SQLite database file.
+        drop_all_tables (bool): If True, drop all tables before inserting new data.
+        append_data (bool): If True, append data to existing tables; if False, replace existing data.
+
+    Returns:
+        None
     """
     path, _ = os.path.split(db_path)
     os.makedirs(path, exist_ok=True)
@@ -72,11 +71,29 @@ def dataframes_to_db(
 
 
 def get_sqlite_table_names(db_path: str) -> List[str]:
+    """
+    Retrieve the list of table names from a SQLite database.
+
+    Args:
+        db_path (str): Full path to the SQLite database file.
+
+    Returns:
+        List[str]: List of table names in the database.
+    """
     engine = create_engine(f"sqlite:///{db_path}", echo=False)
     inspector = inspect(engine)
     return inspector.get_table_names()
 
 
 def get_excel_sheet_names(path: str) -> List[str]:
+    """
+    Retrieve the list of sheet names from an Excel file.
+
+    Args:
+        path (str): Full path to the Excel file.
+
+    Returns:
+        List[str]: List of sheet names in the Excel file.
+    """
     xl_file = pd.ExcelFile(path)
     return list(xl_file.sheet_names)

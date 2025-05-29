@@ -1,7 +1,7 @@
 import os
 
 from model.model_config import (
-    EtlConfig, 
+    Config, 
     MainParameters, 
     DatabaseConfig
 )
@@ -32,7 +32,16 @@ from model.model_streamlit import (
 
 from helpers.helpers_serialize import get_serialized_data
 
-def get_config() -> EtlConfig:
+def get_config() -> Config:
+    """
+    Load and construct the main Config object for the application from the YAML settings file.
+
+    Args:
+        None
+
+    Returns:
+        Config: The fully constructed configuration object containing all application settings.
+    """
     # Récupérer le path absolute du root
     absolute_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -41,7 +50,7 @@ def get_config() -> EtlConfig:
 
     path = os.path.join(absolute_root_path, relative_config_path)
     config = get_serialized_data(path)
-    return EtlConfig(
+    return Config(
         root_path = absolute_root_path,
         log_path =  os.path.join(absolute_root_path, config["main_parameters"]["log_dir"]),
         db_path = os.path.join(absolute_root_path, config["database"]["dir"]),

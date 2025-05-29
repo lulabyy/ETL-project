@@ -2,13 +2,13 @@ import os
 import pandas as pd
 import yfinance as yf
 
-from model.model_config import EtlConfig
+from model.model_config import Config
 
 from helpers import helpers_logger
 from helpers import helpers_export
 
 class BenchmarkETL():
-    def __init__(self, config: EtlConfig):
+    def __init__(self, config: Config):
         self.logger = helpers_logger.initLogger(config.benchmark.logger.logname, config.log_path, config.benchmark.logger.filename)
         self.config = config
         self.df_raw = None

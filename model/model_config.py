@@ -21,7 +21,7 @@ class DatabaseConfig:
     metadata_table: str
 
 @dataclass
-class EtlConfig:
+class Config:
     root_path: str
     log_path: str
     db_path: str
